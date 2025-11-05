@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Employees {
+  employee_id         Int                 @id @default(autoincrement())
+  first_name          String
+  last_name           String?
+  designation         String?
+  is_travel_exception Boolean             @default(false)
+  EmployeeLocations   EmployeeLocations[]
+  Attendance          Attendance[]
+}
+
+model Locations {
+  location_id       Int                 @id @default(autoincrement())
+  location_name     String
+  center_latitude   Float?
+  center_longitude  Float?
+  min_latitude      Float
+  max_latitude      Float
+  min_longitude     Float
+  max_longitude     Float
+  EmployeeLocations EmployeeLocations[]
+  Attendance        Attendance[]        @relation("MarkedLocation")
+}
+
+model EmployeeLocations {
+  employee_id Int
+  location_id Int
+  Employees   Employees @relation(fields: [employee_id], references: [employee_id])
+  Locations   Locations @relation(fields: [location_id], references: [location_id])
+
+  @@id([employee_id, location_id])
+}
+
+model Attendance {
+  attendance_id      Int       @id @default(autoincrement())
+  employee_id        Int
+  attendance_date    DateTime  @default(now())
+  check_in_time      DateTime?
+  check_in_latitude  Float?
+  check_in_longitude Float?
+  marked_location_id Int?
+  image_path         String?
+  is_on_site         Boolean   @default(false)
+  check_out_time     DateTime?
+
+  Employees Employees  @relation(fields: [employee_id], references: [employee_id])
+  Locations Locations? @relation("MarkedLocation", fields: [marked_location_id], references: [location_id])
+}

@@ -4,24 +4,6 @@ import { PrismaClient } from "@prisma/client";
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/attendance", async (req, res) => {
-  try {
-    const attendance = await prisma.attendance.findMany({
-      include: {
-        Employees: {
-          select: { first_name: true, last_name: true },
-        },
-      },
-      orderBy: { attendance_id: "desc" },
-    });
-    res.json(attendance);
-  }
-  catch (err) {
-    console.error(err);
-    res.status(500).json({error: "Failed to fetch attendance"});
-  }
-});
-
 router.post("/checkin", async (req, res) => {
   try {
     const { employee_id, lat, lon, image_path } = req.body;
